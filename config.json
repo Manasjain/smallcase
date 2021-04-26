@@ -3,7 +3,7 @@
   "mysql": {
     "dsn": "",
     "hostname": "localhost:3307",
-    "password": "user-service",
+    "password": "",
     "username": "root",
     "dbName": "sc"
   }
