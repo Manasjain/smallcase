@@ -1,0 +1,10 @@
+{
+  "hostAndPort": "localhost:3000",
+  "mysql": {
+    "dsn": "",
+    "hostname": "localhost:3307",
+    "password": "user-service",
+    "username": "root",
+    "dbName": "sc"
+  }
+}

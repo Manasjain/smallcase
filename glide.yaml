@@ -1,0 +1,9 @@
+package: smallcase
+import:
+- package:  github.com/gorilla/mux
+- package: github.com/gorilla/handlers
+- package: github.com/jinzhu/gorm
+- package: github.com/jinzhu/gorm/dialects/mysql
+- package: github.com/google/uuid
+- package: github.com/go-swagger/go-swagger/cmd/swagger
+- package: github.com/golang/mock/gomock

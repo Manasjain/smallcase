@@ -1,0 +1,401 @@
+{
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "schemes": [
+    "http"
+  ],
+  "swagger": "2.0",
+  "info": {
+    "description": "This is the detailed overview of all the REST API",
+    "title": "SmallCase API Assignment Documentation",
+    "contact": {
+      "name": "Manas Jain",
+      "email": "manas.jain@gmail.com"
+    },
+    "version": "1.0.0"
+  },
+  "host": "localhost:3000",
+  "paths": {
+    "/api/v1/trade/add": {
+      "post": {
+        "description": "If the trade is successful, a TradeId will be returned else an error response will be sent",
+        "consumes": [
+          "application/json"
+        ],
+        "summary": "Returns a Unique Id (TradeId) for each Trade",
+        "operationId": "AddTradeHandler",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "data": {
+                  "$ref": "#/definitions/AddTradeRequestBody"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "$ref": "#/responses/AddTradeResponse"
+          },
+          "400": {
+            "$ref": "#/responses/Error"
+          },
+          "500": {
+            "$ref": "#/responses/Error"
+          }
+        }
+      }
+    },
+    "/api/v1/trade/update": {
+      "put": {
+        "description": "if the trade is successfully updated, http.StatusNoContent = 204 will be returned",
+        "summary": "Returns no response",
+        "operationId": "UpdateTradeHandler",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "data": {
+                  "$ref": "#/definitions/UpdateTradeRequestBody"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "$ref": "#/responses/UpdateTradeResponse"
+          },
+          "400": {
+            "$ref": "#/responses/Error"
+          },
+          "500": {
+            "$ref": "#/responses/Error"
+          }
+        }
+      }
+    },
+    "/api/v1/trade/{tradeId}/remove": {
+      "put": {
+        "description": "If the trade is successfully deleted, http.StatusNoContent = 204 will be returned",
+        "summary": "Returns no response",
+        "operationId": "RemoveTradeHandler",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "trade id generated when a new trade is added",
+            "name": "tradeId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "204": {
+            "$ref": "#/responses/RemoveTradeResponse"
+          },
+          "400": {
+            "$ref": "#/responses/Error"
+          },
+          "500": {
+            "$ref": "#/responses/Error"
+          }
+        }
+      }
+    },
+    "/api/v1/trades/fetch": {
+      "get": {
+        "summary": "Returns all the Securities \u0026 Corresponding Trades",
+        "operationId": "FetchTradeHandler",
+        "responses": {
+          "204": {
+            "$ref": "#/responses/FetchTradeResponse"
+          },
+          "400": {
+            "$ref": "#/responses/Error"
+          },
+          "500": {
+            "$ref": "#/responses/Error"
+          }
+        }
+      }
+    },
+    "/api/v1/trades/portfolio": {
+      "get": {
+        "summary": "Returns aggregated view of all the Securities",
+        "operationId": "GetPortfolioHandler",
+        "responses": {
+          "200": {
+            "$ref": "#/responses/GetPortfolioResponse"
+          },
+          "400": {
+            "$ref": "#/responses/Error"
+          },
+          "500": {
+            "$ref": "#/responses/Error"
+          }
+        }
+      }
+    },
+    "/api/v1/trades/returns": {
+      "get": {
+        "summary": "Returns cumulative returns on all the securities",
+        "operationId": "GetReturnsHandler",
+        "responses": {
+          "200": {
+            "$ref": "#/responses/GetReturnsResponse"
+          },
+          "400": {
+            "$ref": "#/responses/Error"
+          },
+          "500": {
+            "$ref": "#/responses/Error"
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "AddTradeRequestBody": {
+      "type": "object",
+      "required": [
+        "trade_type",
+        "ticker",
+        "trading_units",
+        "unit_price"
+      ],
+      "properties": {
+        "ticker": {
+          "type": "string",
+          "x-go-name": "Ticker",
+          "example": "BSE"
+        },
+        "trade_type": {
+          "type": "string",
+          "x-go-name": "TradeType",
+          "example": "BUY"
+        },
+        "trading_units": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "TradingUnits",
+          "example": 10
+        },
+        "unit_price": {
+          "type": "number",
+          "format": "double",
+          "x-go-name": "UnitPrice",
+          "example": 90
+        }
+      },
+      "x-go-package": "smallcase/dto"
+    },
+    "ErrorCode": {
+      "type": "integer",
+      "format": "int64",
+      "x-go-package": "smallcase/error"
+    },
+    "Portfolio": {
+      "description": "Portfolio",
+      "type": "object",
+      "properties": {
+        "average_buy_price": {
+          "type": "number",
+          "format": "double",
+          "x-go-name": "AverageBuyPrice"
+        },
+        "total_units": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "TotalUnits"
+        }
+      },
+      "x-go-package": "smallcase/dto"
+    },
+    "TradeInfo": {
+      "description": "Trade Info",
+      "type": "object",
+      "properties": {
+        "trade_id": {
+          "type": "string",
+          "x-go-name": "TradeId"
+        },
+        "trade_type": {
+          "type": "string",
+          "x-go-name": "TradeType"
+        },
+        "trading_units": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "TradingUnits"
+        },
+        "unit_price": {
+          "type": "number",
+          "format": "double",
+          "x-go-name": "UnitPrice"
+        }
+      },
+      "x-go-package": "smallcase/dto"
+    },
+    "UpdateTradeRequestBody": {
+      "type": "object",
+      "required": [
+        "tradeId",
+        "unit_price"
+      ],
+      "properties": {
+        "ticker": {
+          "type": "string",
+          "x-go-name": "Ticker",
+          "example": "BSE"
+        },
+        "tradeId": {
+          "type": "string",
+          "x-go-name": "TradeId",
+          "example": "fda060c4-186d-4dd0-8e4a-92592a19797f"
+        },
+        "trade_type": {
+          "type": "string",
+          "x-go-name": "TradeType",
+          "example": "BUY"
+        },
+        "trading_units": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "TradingUnits",
+          "example": 10
+        },
+        "unit_price": {
+          "type": "number",
+          "format": "double",
+          "x-go-name": "UnitPrice",
+          "example": 90
+        }
+      },
+      "x-go-package": "smallcase/dto"
+    }
+  },
+  "responses": {
+    "AddTradeResponse": {
+      "description": "AddTradeResponse model",
+      "headers": {
+        "tradeId": {
+          "type": "string",
+          "description": "A Unique Id for each Trade"
+        }
+      }
+    },
+    "Error": {
+      "description": "Error represents an error in provider layer.\nError Response model",
+      "schema": {
+        "$ref": "#/definitions/ErrorCode"
+      },
+      "headers": {
+        "arg": {
+          "type": "string",
+          "description": "Error Arguments"
+        },
+        "devMessage": {
+          "type": "string",
+          "description": "Error Message"
+        },
+        "errorCode": {
+          "type": "number",
+          "description": "Error Code"
+        }
+      }
+    },
+    "FetchTradeResponse": {
+      "description": "FetchTradeResponse model",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "trades": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/TradeInfo"
+              }
+            },
+            "x-go-name": "Trades"
+          }
+        }
+      }
+    },
+    "GetPortfolioResponse": {
+      "description": "GetPortfolioResponse model",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "portfolio": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/definitions/Portfolio"
+            },
+            "x-go-name": "Portfolio"
+          }
+        }
+      }
+    },
+    "GetReturnsResponse": {
+      "description": "GetPortfolioResponse model",
+      "headers": {
+        "returns": {
+          "type": "number",
+          "format": "double",
+          "description": "Total Returns from all securities"
+        }
+      }
+    },
+    "Portfolio": {
+      "description": "Portfolio",
+      "headers": {
+        "average_buy_price": {
+          "type": "number",
+          "format": "double"
+        },
+        "total_units": {
+          "type": "integer",
+          "format": "int64"
+        }
+      }
+    },
+    "RemoveTradeResponse": {
+      "description": "RemoveTradeResponse model"
+    },
+    "TradeInfo": {
+      "description": "Trade Info",
+      "headers": {
+        "trade_id": {
+          "type": "string"
+        },
+        "trade_type": {
+          "type": "string"
+        },
+        "trading_units": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "unit_price": {
+          "type": "number",
+          "format": "double"
+        }
+      }
+    },
+    "UpdateTradeResponse": {
+      "description": "UpdateTradeResponse model"
+    }
+  }
+}

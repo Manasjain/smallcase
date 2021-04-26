@@ -1,0 +1,13 @@
+create table trades (
+ `id` bigint(20) NOT NULL AUTO_INCREMENT,
+ `tradeId` varchar(36) NOT NULL DEFAULT '',
+ `ticker` varchar(10) NOT NULL DEFAULT '',
+ `tradeType` ENUM ('BUY','SELL'),
+ `tradingUnit` bigint(20) NOT NULL DEFAULT 0,
+ `createdAt` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ `updatedAt` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+ ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
+
+ ALTER TABLE trades ADD deletedAt timestamp NULL DEFAULT NULL
+ ALTER TABLE trades Add unitPrice float(20) NOT NULL DEFAULT "90"
