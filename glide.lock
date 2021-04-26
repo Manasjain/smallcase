@@ -1,14 +1,18 @@
-hash: 356c169ac035103a852a485ed3c8de58fc652088120d47ed13cdd7cc550a5479
-updated: 2021-04-11T21:06:46.529991+05:30
+hash: 9954572804361ee62e5ac3841a805d654c7c7813c9ba511d56ed6fbf0d1ce5ef
+updated: 2021-04-27T01:07:33.726268+05:30
 imports:
 - name: github.com/felixge/httpsnoop
   version: 42c30f944879059639bcf7b2ca4aba06f4a83198
 - name: github.com/go-sql-driver/mysql
   version: 66312f7fe2678aa0f5ec770f96702f4c4ec5aa8e
 - name: github.com/go-swagger/go-swagger
-  version: 43c2774170504d87b104e3e4d68626aac2cd447d
+  version: b49f50b58d021e303ce819ab8310add9bad3a99d
   subpackages:
   - cmd/swagger
+- name: github.com/golang/mock
+  version: 51421b967af1f557f93a59e0057aaf15ca02e29c
+  subpackages:
+  - gomock
 - name: github.com/google/uuid
   version: 512b657a42880af87e9f0d863aa6dccf3540d4ba
 - name: github.com/gorilla/context
@@ -22,5 +26,5 @@ imports:
   subpackages:
   - dialects/mysql
 - name: github.com/jinzhu/inflection
-  version: b5281034e75ed100658f8d9d0b2837f3fad4e8b3
+  version: 970f05d9c0e1f5c179cedc3a0ad94010958733ab
 testImports: []

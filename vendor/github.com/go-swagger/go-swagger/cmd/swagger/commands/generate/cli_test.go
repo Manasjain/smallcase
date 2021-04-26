@@ -27,6 +27,11 @@ func TestGenerateCLI(t *testing.T) {
 		wantError bool
 	}{
 		{
+			name:      "tasklist_basic",
+			spec:      "tasklist.basic.yml",
+			wantError: false,
+		},
+		{
 			name:      "tasklist_allparams",
 			spec:      "todolist.allparams.yml",
 			wantError: false,
@@ -49,6 +54,31 @@ func TestGenerateCLI(t *testing.T) {
 		{
 			name:      "tasklist_simplequery",
 			spec:      "todolist.simplequery.yml",
+			wantError: false,
+		},
+		{
+			name:      "todolist_responses",
+			spec:      "todolist.responses.yml",
+			wantError: false,
+		},
+		{
+			name:      "todo_simple-fixed",
+			spec:      "todolist.simple-fixed.yml",
+			wantError: false,
+		},
+		{
+			name:      "todo_simpleform",
+			spec:      "todolist.simpleform.yml",
+			wantError: false,
+		},
+		{
+			name:      "todo_simpleheader",
+			spec:      "todolist.simpleheader.yml",
+			wantError: false,
+		},
+		{
+			name:      "todo_simplepath",
+			spec:      "todolist.simplepath.yml",
 			wantError: false,
 		},
 	}
@@ -85,48 +115,77 @@ func TestGenerateCLI(t *testing.T) {
 	}
 }
 
-// This tests holds not yet working specs. It will be moved/combined with above test once fixed.
-func TestGenerateCLIWorkInProgress(t *testing.T) {
+func TestGenerateCli_Check(t *testing.T) {
+	log.SetOutput(ioutil.Discard)
+	defer log.SetOutput(os.Stdout)
+
+	m := &generate.Cli{}
+	_, _ = flags.Parse(m)
+	err := m.Execute([]string{})
+	assert.Error(t, err)
+}
+
+// This test runs cli generation on various swagger specs, for sanity check.
+// Skipped in by default. Only run by developer locally.
+func TestVariousCli(t *testing.T) {
+	// comment out this skip to run test
+	t.Skip()
+
 	log.SetOutput(ioutil.Discard)
 	defer log.SetOutput(os.Stdout)
 
 	base := filepath.FromSlash("../../../../")
 
+	// change to true to run test case with runOnly set true
+	runOnlyTest := false
+
 	testcases := []struct {
-		name      string
-		spec      string
-		wantError bool
+		skip          bool
+		name          string
+		spec          string
+		wantError     bool
+		wantVetError  bool
+		preserveFiles bool // force to preserve files
+		runOnly       bool // run only this test, and skip all others
 	}{
-		// TODO: This one is not working for CLI
-		// {
-		// 	name:      "tasklist_basic",
-		// 	spec:      "tasklist.basic.yml",
-		// 	wantError: false,
-		// },
-		// TODO: Discriminator is not yet working for CLI.
-		// {
-		// 	name:      "todolist_discriminators",
-		// 	spec:      "todolist.discriminators.yml",
-		// 	wantError: false,
-		// },
-		// TODO: Not working yet. Need to find a way to detect pkg of model in schema
-		// {
-		// 	name:      "todolist_responses",
-		// 	spec:      "todolist.responses.yml",
-		// 	wantError: false,
-		// },
+		{
+			skip:         true, // do not run this since it is known to have bug
+			name:         "crazy-alias",
+			spec:         "fixtures/bugs/1260/fixture-realiased-types.yaml",
+			wantError:    false, // generate files should success
+			wantVetError: true,  // polymorphism is not supported. model import is not right. TODO: fix this.
+		},
+		{
+			name:          "multi-auth",
+			spec:          "examples/composed-auth/swagger.yml",
+			preserveFiles: true,
+		},
 	}
 
 	for _, tc := range testcases {
-		t.Run(tc.name, func(t *testing.T) {
-			path := filepath.Join(base, "fixtures/codegen", tc.spec)
+		if runOnlyTest && !tc.runOnly {
+			continue
+		}
+		t.Run(tc.name, func(tt *testing.T) {
+			if tc.skip {
+				tt.Skip()
+			}
+			path := filepath.Join(base, tc.spec)
 			generated, err := ioutil.TempDir(filepath.Dir(path), "generated")
 			if err != nil {
 				t.Fatalf("TempDir()=%s", generated)
 			}
-			// defer func() {
-			// 	_ = os.RemoveAll(generated)
-			// }()
+			defer func() {
+				// only clean up if success, and leave the files around for developer to inspect
+				if !tt.Failed() {
+					if !tc.preserveFiles {
+						_ = os.RemoveAll(generated)
+					}
+				} else {
+					// stop all tests, since it will generate too many files to inspect
+					t.FailNow()
+				}
+			}()
 			m := &generate.Cli{}
 			_, _ = flags.Parse(m)
 			m.Shared.Spec = flags.Filename(path)
@@ -134,14 +193,19 @@ func TestGenerateCLIWorkInProgress(t *testing.T) {
 
 			err = m.Execute([]string{})
 			if tc.wantError {
-				assert.Error(t, err)
+				assert.Error(tt, err)
 			} else {
-				require.NoError(t, err)
-				// run go vet on generated files
-				vet := exec.Command("go", "vet", generated+"/...")
-				output, err := vet.CombinedOutput()
-				if err != nil {
-					assert.NoError(t, err, string(output))
+				require.NoError(tt, err)
+				// always run go vet on generated files
+				runVet := true
+				if runVet {
+					vet := exec.Command("go", "vet", generated+"/...")
+					output, err := vet.CombinedOutput()
+					if !tc.wantVetError {
+						assert.NoError(tt, err, string(output))
+					} else {
+						assert.Error(t, err)
+					}
 				}
 			}
 		})

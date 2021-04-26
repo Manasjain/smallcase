@@ -11,6 +11,7 @@ import (
 
 	"github.com/go-swagger/go-swagger/examples/cli/client/todos"
 
+	"github.com/go-openapi/swag"
 	"github.com/spf13/cobra"
 )
 
@@ -40,57 +41,20 @@ func runOperationTodosDestroyOne(cmd *cobra.Command, args []string) error {
 	if err, _ := retrieveOperationTodosDestroyOneIDFlag(params, "", cmd); err != nil {
 		return err
 	}
+	if dryRun {
+
+		logDebugf("dry-run flag specified. Skip sending request.")
+		return nil
+	}
 	// make request and then print result
-	if err := printOperationTodosDestroyOneResult(appCli.Todos.DestroyOne(params, nil)); err != nil {
+	msgStr, err := parseOperationTodosDestroyOneResult(appCli.Todos.DestroyOne(params, nil))
+	if err != nil {
 		return err
 	}
-	return nil
-}
+	if !debug {
 
-func retrieveOperationTodosDestroyOneIDFlag(m *todos.DestroyOneParams, cmdPrefix string, cmd *cobra.Command) (error, bool) {
-	retAdded := false
-	if cmd.Flags().Changed("id") {
-
-		var idFlagName string
-		if cmdPrefix == "" {
-			idFlagName = "id"
-		} else {
-			idFlagName = fmt.Sprintf("%v.id", cmdPrefix)
-		}
-
-		idFlagValue, err := cmd.Flags().GetInt64(idFlagName)
-		if err != nil {
-			return err, false
-		}
-		m.ID = idFlagValue
-
+		fmt.Println(msgStr)
 	}
-	return nil, retAdded
-}
-
-// printOperationTodosDestroyOneResult prints output to stdout
-func printOperationTodosDestroyOneResult(resp0 *todos.DestroyOneNoContent, respErr error) error {
-	if respErr != nil {
-
-		var iResp interface{} = respErr
-		defaultResp, ok := iResp.(*todos.DestroyOneDefault)
-		if !ok {
-			return respErr
-		}
-		if defaultResp.Payload != nil {
-			msgStr, err := json.Marshal(defaultResp.Payload)
-			if err != nil {
-				return err
-			}
-			fmt.Println(string(msgStr))
-			return nil
-		}
-
-		return respErr
-	}
-
-	// warning: non schema response destroyOneNoContent is not supported by go-swagger cli yet.
-
 	return nil
 }
 
@@ -117,9 +81,52 @@ func registerOperationTodosDestroyOneIDParamFlags(cmdPrefix string, cmd *cobra.C
 
 	_ = cmd.PersistentFlags().Int64(idFlagName, idFlagDefault, idDescription)
 
-	if err := cmd.MarkPersistentFlagRequired(idFlagName); err != nil {
-		return err
+	return nil
+}
+
+func retrieveOperationTodosDestroyOneIDFlag(m *todos.DestroyOneParams, cmdPrefix string, cmd *cobra.Command) (error, bool) {
+	retAdded := false
+	if cmd.Flags().Changed("id") {
+
+		var idFlagName string
+		if cmdPrefix == "" {
+			idFlagName = "id"
+		} else {
+			idFlagName = fmt.Sprintf("%v.id", cmdPrefix)
+		}
+
+		idFlagValue, err := cmd.Flags().GetInt64(idFlagName)
+		if err != nil {
+			return err, false
+		}
+		m.ID = idFlagValue
+
+	}
+	return nil, retAdded
+}
+
+// parseOperationTodosDestroyOneResult parses request result and return the string content
+func parseOperationTodosDestroyOneResult(resp0 *todos.DestroyOneNoContent, respErr error) (string, error) {
+	if respErr != nil {
+
+		var iRespD interface{} = respErr
+		respD, ok := iRespD.(*todos.DestroyOneDefault)
+		if ok {
+			if !swag.IsZero(respD.Payload) {
+				msgStr, err := json.Marshal(respD.Payload)
+				if err != nil {
+					return "", err
+				}
+				return string(msgStr), nil
+			}
+		}
+
+		// Non schema case: warning destroyOneNoContent is not supported
+
+		return "", respErr
 	}
 
-	return nil
+	// warning: non schema response destroyOneNoContent is not supported by go-swagger cli yet.
+
+	return "", nil
 }
