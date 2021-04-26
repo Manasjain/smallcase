@@ -1,3 +1,8 @@
+# To Try APIs
+
+-  **_Go to [Swagger Hosting](http://13.232.138.214:3000/swaggerui/dist)_**
+
+# To Setup Project in local:
 
 ## Install go(lang)
  with [homebrew](http://mxcl.github.io/homebrew/):
